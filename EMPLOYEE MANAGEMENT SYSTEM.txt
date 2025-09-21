@@ -1,0 +1,221 @@
+import datetime 
+import mysql.connector as driver
+import sys
+def menu():
+    loop='y'
+    while(loop=='y' or loop=='Y'):
+        print("........MENU.......")
+        print("1. CREATE DATABASE")
+        print("2. SHOW   DATABASES")
+        print("3. CREATE TABLE")
+        print("4. SHOW   TABLES")
+        print("5. INSERT RECORD")
+        print("6. UPDATE RECORD")
+        print("7. DELETE RECORD")
+        print("8. SEARCH RECORD")
+        print("9. DISPLAY RECORD")
+        print("10. EXIT ")
+        print()
+        print()
+        choice= int(input("Enter the choice (1-10) : "))
+        if(choice==1):
+            create_database()
+        elif(choice==2):
+            show_databases()
+        elif(choice==3):
+            create_table()
+        elif(choice==4):
+            show_tables()
+        elif(choice==5):
+            insert_record()
+        elif(choice==6):
+            update_record()
+        elif(choice==7):
+            delete_record()
+        elif(choice==8):
+            search_record()
+        elif(choice==9):
+            display_record()
+        elif(choice==10):
+            print("Thank you for using our program. Goodbye!")
+            break
+        else:
+             print("Wrong Choice.")
+        loop=input("Do you want more try? Press 'y' to continue...") 
+
+def create_database():
+    con=driver.connect(host='localhost',user='root',password='763737@AF',charset='utf8')
+    if con.is_connected():
+        print("successfully connected")
+    cur=con.cursor()
+    db_name=input("enter the name of the database you want to create ? :")
+    cur.execute(f"CREATE DATABASE {db_name}") 
+    print()
+    print("database created")
+    con.close()
+
+def show_databases():    
+    con=driver.connect(host='localhost',user='root',password='763737@AF',charset='utf8')
+    if con.is_connected ():
+        print("successfully connected")
+    cur=con.cursor()
+    cur.execute('show databases')
+    for i in cur :
+        print(i) 
+    con.close()
+
+def create_table():
+    con=driver.connect(host='localhost',user='root',password='763737@AF',charset='utf8',database='empl_2')
+    if con.is_connected():
+        print("successfully connected")
+    cur=con.cursor()
+    cur.execute('create table if not exists employee_2(empno decimal(6,0) primary key, name varchar(20) not null, workdept char(20), hiredate date, dob date, sal decimal(10,2), bonus decimal(8,3), comm decimal(8,3), job char(20) not null, sex char(1) not null, phone_number char(10) not null)')
+    print()
+    print("table created -> employee_2")
+    cur.execute('desc employee_2')
+    print("+-------------|--------------|-----------+")
+    print("| Column Name |DataType(Size)| NULL      |")
+    print("+-------------|--------------|-----------+")
+    for i in cur:
+        print('|{0:12}   | {1:12}       | {2:10}    |'.format(i[0],i[1],i[2]))
+    print("+-------------|--------------|-----------+")
+    con.close() 
+                                                                               
+def show_tables():
+    con=driver.connect(host='localhost',user='root',password='763737@AF',charset='utf8',database='empl_2')
+    if con.is_connected():
+        print("Successfully Connected")
+        cur=con.cursor()
+        cur.execute('show tables')
+        for i in cur:
+            print(i)
+            con.close()
+
+def insert_record(): 
+    con=driver.connect(host='localhost',user='root',passwd='763737@AF',charset='utf8',database='empl_2')
+    if con.is_connected():
+        print("Successfully Connected")
+        cur=con.cursor()
+        empno=int(input("enter employee number/ID:"))
+        name=input("enter the name of employee:")
+        workdept=input("enter work departement name:")
+        hiredate=(input("enter the date of hire in yyyy-mm-dd formate :"))
+        dob=(input("enter date of birth of employee in yyyy-mm-dd formate :"))
+        sal=float(input("enter employee salery:"))  
+        bonus=float(input("enter employee bonus amount:"))
+        comm=float(input("enter employee commission amount:"))
+        job=input("enter employee job:")
+        sex=input("enter employee gender as m/f :")
+        phone_number=int(input("employee phone number :"))
+        # validate the date formate 
+        try:
+            datetime.datetime.strptime(dob, '%Y-%m-%d')
+            datetime.datetime.strptime(hiredate, '%Y-%m-%d')
+        except valueError:
+            print("incorrect data formate , should be yyyy-MM-DD")
+            return
+            #finishing step is happening 
+        query1="insert into employee_2(empno,name,workdept,hiredate,dob,sal,bonus,comm,job,sex,phone_number) VALUES({},'{}','{}','{}','{}','{}','{}','{}','{}','{}',{})".format(empno,name,workdept,hiredate,dob,sal,bonus,comm,job,sex,phone_number)
+        cur.execute(query1)
+        con.commit()
+        print('Record Inserted')
+        con.close()
+    else:
+        print("Error : Not Connected")
+
+                                                                   
+
+def update_record():
+    con=driver.connect(host='localhost',user='root',passwd='763737@AF',charset='utf8',database='empl_2')
+    if con.is_connected():
+        print("Successfully Connected")
+        cur=con.cursor()
+        NEWempl=int(input("Enter Employee number/ID for update record : "))
+        empno=int(input("enter new employee number/ID:"))
+        name=input("enter the new name of employee:")
+        workdept=input("enter work new departement name:")
+        hiredate=input("enter employee new hire date(in YYYY-MM-DD format) : ")
+        dob=input("enter employee date of birth(in YYYY-MM-DD format) : ") 
+        sal=float(input("enter new employee salery:"))  
+        bonus=float(input("enter new employee bonus amount:"))
+        comm=float(input("enter new employee commission amount:"))
+        job=input("enter new employee job:")
+        sex=input("enter employee gender as m/f :")
+        phone_number=int(input("employee new phone number :"))
+        # validate the date format
+        try:
+            datetime.datetime.strptime(dob, '%Y-%m-%d')
+            datetime.datetime.strptime(hiredate, '%Y-%m-%d')
+        except ValueError:
+            print("Incorrect date format, should be YYYY-MM-DD")
+            return
+            #query getting acomplashied 
+        query1="update employee_2 set empno=%s, name='%s', workdept='%s', hiredate='%s', dob='%s', sal='%s', bonus='%s', comm='%s', job='%s', sex='%s', phone_number=%s  where empno=%s" %(empno,name,workdept,hiredate,dob,sal,bonus,comm,job,sex,phone_number,NEWempl)
+        cur.execute(query1)
+        con.commit()
+        print("Record Updated")
+        con.close()
+    else:
+        print("Error : Not Connected")     
+
+def delete_record():
+    con = driver.connect(host='localhost', user='root', passwd='763737@AF', charset='utf8', database='empl_2')
+    cur = con.cursor()
+    DELETE = int(input("Enter Employee number/ID for deleting record : "))
+    query1 = "delete from employee_2 where empno={0}".format(DELETE)
+    cur.execute(query1)
+    con.commit()
+    print("Record Deleted")
+    con.close()
+                                                             
+def search_record():
+    con=driver.connect(host='localhost',user='root',passwd='763737@AF',charset='utf8',database='empl_2')
+    cur=con.cursor()
+    print("enter the choice accourding to you want to search record : ")
+    print("1. according to empno")
+    print("2. according to name")
+    print("3. acording to job")
+    print()
+    choice=int(input("enter choice from (1-3) : "))
+    if choice==1:
+        empid_no=int(input("Enter Employee number which you want to search : "))
+        query1="select * from employee_2 where empno='%s'" %(empid_no)
+    elif choice==2:
+        ename=input("Enter Employee Name which you want to search : ")
+        query1="select * from employee_2 where name='%s'" %(ename)
+    elif choice==3:
+        empjob=input("Enter Employee job which you want to search : ")
+        query1="select*from employee_2 where job='%s'" %(empjob)
+    else:
+        print("Wrong Choice")
+    cur.execute(query1)
+    rec=cur.fetchall()
+    count=cur.rowcount
+    print("Total no. of records found : ",count)
+    for i in rec:
+        print(i)
+    print("Record Searched")
+    con.close()
+
+def display_record():
+    con=driver.connect(host='localhost',user='root',passwd='763737@AF',charset='utf8',database='empl_2')
+    if con.is_connected():
+        print("Successfully Connected")
+        cur=con.cursor()
+        cur.execute('select * from employee_2')
+        rec=cur.fetchall()
+        count=cur.rowcount
+        print("+----------|--------------|-----------|-----------|-----------|----------|---------|---------|---------|-------|--------------+")
+        print("|  Empno   |     Name     | Workdept  | Hiredate  |    Dob    |   Sal    |  Bonus  |  Comm   |   Job   |  Sex  | Phone_number |")
+        print("+----------|--------------|-----------|-----------|-----------|----------|---------|---------|---------|-------|--------------+")
+        for i in rec:
+            print('|{0:12} | {1:12} | {2:10} | {3:10} | {4:10} | {5:10} | {6:10} | {7:10} | {8:10} | {9:10} |                                {10:10}|'.format(i[0],i[1],i[2],i[3],i[4],i[5],i[6],i[7],i[8],i[9],i[10])) 
+        print("+----------|--------------|-----------|-----------|-----------|-----------|-----------|-----------|-----------+")
+        print("Total no. of records are : ",count)
+        for i in rec:
+            print(i)
+        con.close()
+    else:
+        print("Error : Database Connection is not success" )
+
+menu()
